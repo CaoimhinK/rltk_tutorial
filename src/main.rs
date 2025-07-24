@@ -7,7 +7,10 @@ mod map;
 pub use map::*;
 mod player;
 pub use player::*;
+
 mod rect;
+mod visibility_system;
+use visibility_system::VisibilitySystem;
 
 pub struct State {
     ecs: World,
@@ -15,6 +18,8 @@ pub struct State {
 
 impl State {
     fn run_systems(&mut self) {
+        let mut vis = VisibilitySystem {};
+        vis.run_now(&self.ecs);
         self.ecs.maintain();
     }
 }
@@ -41,6 +46,7 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<Position>();
     ecs.register::<Renderable>();
     ecs.register::<Player>();
+    ecs.register::<Viewshed>();
 }
 
 fn create_entities(ecs: &mut World) {
@@ -61,6 +67,7 @@ fn create_entities(ecs: &mut World) {
             bg: RGB::named(rltk::BLACK),
         })
         .with(Player {})
+        .with(Viewshed { visible_tiles: Vec::new(), range: 8 })
         .build();
 }
 

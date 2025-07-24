@@ -1,6 +1,6 @@
 use std::cmp::{max, min};
 
-use rltk::{RandomNumberGenerator, Rltk, RGB};
+use rltk::{Algorithm2D, BaseMap, Point, RandomNumberGenerator, Rltk, RGB};
 
 use crate::rect::Rect;
 
@@ -97,6 +97,18 @@ impl Map {
         map
     }
 
+}
+
+impl BaseMap for Map {
+    fn is_opaque(&self, idx: usize) -> bool {
+        self.tiles[idx as usize] == TileType::Wall
+    }
+}
+
+impl Algorithm2D for Map {
+    fn dimensions(&self) -> Point {
+        Point::new(self.width, self.height)
+    }
 }
 
 pub fn draw_map(map: &[TileType], ctx: &mut Rltk) {

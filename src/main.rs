@@ -7,6 +7,7 @@ mod map;
 pub use map::*;
 mod player;
 pub use player::*;
+mod rect;
 
 pub struct State {
     ecs: World,
@@ -43,10 +44,17 @@ fn register_structs(ecs: &mut World) {
 }
 
 fn create_entities(ecs: &mut World) {
-    ecs.insert(new_map());
+    let (rooms, map) = new_map_rooms_and_corridors();
+
+    ecs.insert(map);
+
+    let (player_x, player_y) = rooms[0].center();
 
     ecs.create_entity()
-        .with(Position { x: 40, y: 25 })
+        .with(Position {
+            x: player_x,
+            y: player_y,
+        })
         .with(Renderable {
             glyph: rltk::to_cp437('@'),
             fg: RGB::named(rltk::YELLOW),

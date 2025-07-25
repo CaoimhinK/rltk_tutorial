@@ -76,6 +76,60 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<Monster>();
     ecs.register::<Name>();
     ecs.register::<BlocksTile>();
+    ecs.register::<CombatStats>();
+}
+
+fn create_player(ecs: &mut World, x: i32, y: i32) {
+    ecs.create_entity()
+        .with(Position { x, y })
+        .with(Renderable {
+            glyph: rltk::to_cp437('@'),
+            fg: RGB::named(rltk::YELLOW),
+            bg: RGB::named(rltk::BLACK),
+        })
+        .with(Player {})
+        .with(Viewshed {
+            visible_tiles: Vec::new(),
+            range: 8,
+            dirty: true,
+        })
+        .with(Name {
+            name: "Player".to_string(),
+        })
+        .with(CombatStats {
+            max_hp: 30,
+            hp: 30,
+            defence: 2,
+            power: 5,
+        })
+        .build();
+}
+
+fn create_monster(ecs: &mut World, x: i32, y: i32, glyph: u16, name: String, i: usize) {
+    ecs.create_entity()
+        .with(Position { x, y })
+        .with(Renderable {
+            glyph,
+            fg: RGB::named(rltk::RED),
+            bg: RGB::named(rltk::BLACK),
+        })
+        .with(Viewshed {
+            visible_tiles: Vec::new(),
+            range: 8,
+            dirty: true,
+        })
+        .with(Monster {})
+        .with(Name {
+            name: format!("{} #{}", &name, i),
+        })
+        .with(BlocksTile {})
+        .with(CombatStats {
+            max_hp: 16,
+            hp: 16,
+            defence: 1,
+            power: 4,
+        })
+        .build();
 }
 
 fn create_entities(ecs: &mut World) {
@@ -103,49 +157,13 @@ fn create_entities(ecs: &mut World) {
             }
         }
 
-        ecs.create_entity()
-            .with(Position { x, y })
-            .with(Renderable {
-                glyph,
-                fg: RGB::named(rltk::RED),
-                bg: RGB::named(rltk::BLACK),
-            })
-            .with(Viewshed {
-                visible_tiles: Vec::new(),
-                range: 8,
-                dirty: true,
-            })
-            .with(Monster {})
-            .with(Name {
-                name: format!("{} #{}", &name, i),
-            })
-            .with(BlocksTile {})
-            .build();
+        create_monster(ecs, x, y, glyph, name, i);
     }
 
     ecs.insert(map);
     ecs.insert(Point::new(player_x, player_y));
 
-    ecs.create_entity()
-        .with(Position {
-            x: player_x,
-            y: player_y,
-        })
-        .with(Renderable {
-            glyph: rltk::to_cp437('@'),
-            fg: RGB::named(rltk::YELLOW),
-            bg: RGB::named(rltk::BLACK),
-        })
-        .with(Player {})
-        .with(Viewshed {
-            visible_tiles: Vec::new(),
-            range: 8,
-            dirty: true,
-        })
-        .with(Name {
-            name: "Player".to_string(),
-        })
-        .build();
+    create_player(ecs, player_x, player_y);
 }
 
 fn main() -> rltk::BError {

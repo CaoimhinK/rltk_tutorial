@@ -20,6 +20,7 @@ use crate::{
     melee_combat_system::MeleeCombatSystem,
 };
 
+mod gamelog;
 mod gui;
 
 mod damage_system;
@@ -205,6 +206,9 @@ fn create_entities(ecs: &mut World) {
     ecs.insert(map);
     ecs.insert(RunState::PreRun);
     ecs.insert(Point::new(player_x, player_y));
+    ecs.insert(gamelog::GameLog {
+        entries: vec!["Welcome to Rusty Roguelike".to_string()],
+    });
 
     create_player(ecs, player_x, player_y);
 }

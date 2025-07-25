@@ -1,4 +1,4 @@
-use rltk::{GameState, RGB};
+use rltk::{GameState, Point, RGB};
 use specs::prelude::*;
 
 mod components;
@@ -105,6 +105,7 @@ fn create_entities(ecs: &mut World) {
     }
 
     ecs.insert(map);
+    ecs.insert(Point::new(player_x, player_y));
 
     ecs.create_entity()
         .with(Position {

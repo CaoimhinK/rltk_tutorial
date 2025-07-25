@@ -1,9 +1,9 @@
 use std::cmp::{max, min};
 
 use rltk::{Algorithm2D, BaseMap, Point, RandomNumberGenerator, Rltk, RGB};
-use specs::{World};
+use specs::World;
 
-use crate::{rect::Rect};
+use crate::rect::Rect;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum TileType {
@@ -101,7 +101,6 @@ impl Map {
 
         map
     }
-
 }
 
 impl BaseMap for Map {
@@ -135,7 +134,9 @@ pub fn draw_map(ecs: &World, ctx: &mut Rltk) {
                     fg = RGB::from_f32(0., 1.0, 0.);
                 }
             }
-            if !map.visible_tiles[idx] { fg = fg.to_greyscale() }
+            if !map.visible_tiles[idx] {
+                fg = fg.to_greyscale()
+            }
             ctx.set(x, y, fg, RGB::from_f32(0., 0., 0.), glyph);
         }
 

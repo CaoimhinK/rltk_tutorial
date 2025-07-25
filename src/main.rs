@@ -68,6 +68,7 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<Player>();
     ecs.register::<Viewshed>();
     ecs.register::<Monster>();
+    ecs.register::<Name>();
 }
 
 fn create_entities(ecs: &mut World) {
@@ -77,15 +78,22 @@ fn create_entities(ecs: &mut World) {
 
     let mut rng = rltk::RandomNumberGenerator::new();
 
-    for room in map.rooms.iter().skip(1) {
+    for (i, room) in map.rooms.iter().skip(1).enumerate() {
         let (x, y) = room.center();
 
         let glyph: rltk::FontCharType;
+        let name: String;
         let roll = rng.roll_dice(1, 2);
 
         match roll {
-            1 => glyph = rltk::to_cp437('g'),
-            _ => glyph = rltk::to_cp437('o'),
+            1 => {
+                glyph = rltk::to_cp437('g');
+                name = "Goblin".to_string();
+            }
+            _ => {
+                glyph = rltk::to_cp437('o');
+                name = "Orc".to_string();
+            }
         }
 
         ecs.create_entity()
@@ -101,6 +109,9 @@ fn create_entities(ecs: &mut World) {
                 dirty: true,
             })
             .with(Monster {})
+            .with(Name {
+                name: format!("{} #{}", &name, i),
+            })
             .build();
     }
 
@@ -122,6 +133,9 @@ fn create_entities(ecs: &mut World) {
             visible_tiles: Vec::new(),
             range: 8,
             dirty: true,
+        })
+        .with(Name {
+            name: "Player".to_string(),
         })
         .build();
 }

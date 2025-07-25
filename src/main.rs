@@ -20,6 +20,8 @@ use crate::{
     melee_combat_system::MeleeCombatSystem,
 };
 
+mod gui;
+
 mod damage_system;
 mod map_indexing_system;
 mod melee_combat_system;
@@ -98,6 +100,8 @@ impl GameState for State {
                 ctx.set(pos.x, pos.y, render.fg, render.bg, render.glyph);
             }
         }
+
+        gui::draw_ui(&self.ecs, ctx);
     }
 }
 

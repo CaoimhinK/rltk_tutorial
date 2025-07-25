@@ -15,9 +15,14 @@ use visibility_system::VisibilitySystem;
 mod monster_ai_system;
 use monster_ai_system::MonsterAI;
 
-use crate::map_indexing_system::MapIndexingSystem;
+use crate::{
+    damage_system::DamageSystem, map_indexing_system::MapIndexingSystem,
+    melee_combat_system::MeleeCombatSystem,
+};
 
+mod damage_system;
 mod map_indexing_system;
+mod melee_combat_system;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum RunState {
@@ -38,6 +43,10 @@ impl State {
         mob.run_now(&self.ecs);
         let mut mapindex = MapIndexingSystem {};
         mapindex.run_now(&self.ecs);
+        let mut melee = MeleeCombatSystem {};
+        melee.run_now(&self.ecs);
+        let mut damage = DamageSystem {};
+        damage.run_now(&self.ecs);
         self.ecs.maintain();
     }
 }
@@ -48,6 +57,7 @@ impl GameState for State {
 
         if self.runstate == RunState::Running {
             self.run_systems();
+            damage_system::delete_the_dead(&mut self.ecs);
             self.runstate = RunState::Paused;
         } else {
             self.runstate = player_input(self, ctx);
@@ -77,6 +87,8 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<Name>();
     ecs.register::<BlocksTile>();
     ecs.register::<CombatStats>();
+    ecs.register::<WantsToMelee>();
+    ecs.register::<SufferDamage>();
 }
 
 fn create_player(ecs: &mut World, x: i32, y: i32) {

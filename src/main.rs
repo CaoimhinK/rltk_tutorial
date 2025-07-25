@@ -118,6 +118,8 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<CombatStats>();
     ecs.register::<WantsToMelee>();
     ecs.register::<SufferDamage>();
+    ecs.register::<Item>();
+    ecs.register::<Potion>();
 }
 
 fn create_entities(ecs: &mut World) {

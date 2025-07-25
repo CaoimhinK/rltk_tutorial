@@ -12,6 +12,9 @@ mod rect;
 mod visibility_system;
 use visibility_system::VisibilitySystem;
 
+mod monster_ai_system;
+use monster_ai_system::MonsterAI;
+
 pub struct State {
     ecs: World,
 }
@@ -20,6 +23,8 @@ impl State {
     fn run_systems(&mut self) {
         let mut vis = VisibilitySystem {};
         vis.run_now(&self.ecs);
+        let mut mob = MonsterAI {};
+        mob.run_now(&self.ecs);
         self.ecs.maintain();
     }
 }
@@ -51,6 +56,7 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<Renderable>();
     ecs.register::<Player>();
     ecs.register::<Viewshed>();
+    ecs.register::<Monster>();
 }
 
 fn create_entities(ecs: &mut World) {
@@ -58,12 +64,23 @@ fn create_entities(ecs: &mut World) {
 
     let (player_x, player_y) = map.rooms[0].center();
 
+    let mut rng = rltk::RandomNumberGenerator::new();
+
     for room in map.rooms.iter().skip(1) {
         let (x, y) = room.center();
+
+        let glyph: rltk::FontCharType;
+        let roll = rng.roll_dice(1, 2);
+
+        match roll {
+            1 => glyph = rltk::to_cp437('g'),
+            _ => glyph = rltk::to_cp437('o'),
+        }
+
         ecs.create_entity()
             .with(Position { x, y })
             .with(Renderable {
-                glyph: rltk::to_cp437('g'),
+                glyph,
                 fg: RGB::named(rltk::RED),
                 bg: RGB::named(rltk::BLACK),
             })
@@ -72,6 +89,7 @@ fn create_entities(ecs: &mut World) {
                 range: 8,
                 dirty: true,
             })
+            .with(Monster {})
             .build();
     }
 

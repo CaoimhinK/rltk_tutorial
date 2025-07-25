@@ -92,7 +92,8 @@ fn register_structs(ecs: &mut World) {
 }
 
 fn create_player(ecs: &mut World, x: i32, y: i32) {
-    ecs.create_entity()
+    let player_entity = ecs
+        .create_entity()
         .with(Position { x, y })
         .with(Renderable {
             glyph: rltk::to_cp437('@'),
@@ -115,6 +116,8 @@ fn create_player(ecs: &mut World, x: i32, y: i32) {
             power: 5,
         })
         .build();
+
+    ecs.insert(player_entity);
 }
 
 fn create_monster(ecs: &mut World, x: i32, y: i32, glyph: u16, name: String, i: usize) {

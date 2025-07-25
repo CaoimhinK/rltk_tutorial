@@ -134,8 +134,7 @@ fn create_entities(ecs: &mut World) {
     let player_entity = spawner::player(ecs, player_x, player_y);
 
     for room in map.rooms.iter().skip(1) {
-        let (x, y) = room.center();
-        spawner::random_monster(ecs, x, y);
+        spawner::spawn_room(ecs, room);
     }
 
     ecs.insert(map);

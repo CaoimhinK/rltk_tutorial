@@ -16,8 +16,8 @@ mod monster_ai_system;
 use monster_ai_system::MonsterAI;
 
 use crate::{
-    damage_system::DamageSystem, map_indexing_system::MapIndexingSystem,
-    melee_combat_system::MeleeCombatSystem,
+    damage_system::DamageSystem, inventory_system::ItemCollectionSystem,
+    map_indexing_system::MapIndexingSystem, melee_combat_system::MeleeCombatSystem,
 };
 
 mod gamelog;
@@ -25,6 +25,7 @@ mod gui;
 mod spawner;
 
 mod damage_system;
+mod inventory_system;
 mod map_indexing_system;
 mod melee_combat_system;
 
@@ -52,6 +53,8 @@ impl State {
         melee.run_now(&self.ecs);
         let mut damage = DamageSystem {};
         damage.run_now(&self.ecs);
+        let mut pickup = ItemCollectionSystem {};
+        pickup.run_now(&self.ecs);
         self.ecs.maintain();
     }
 }
@@ -120,6 +123,8 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<SufferDamage>();
     ecs.register::<Item>();
     ecs.register::<Potion>();
+    ecs.register::<InBackpack>();
+    ecs.register::<WantsToPickupItem>();
 }
 
 fn create_entities(ecs: &mut World) {

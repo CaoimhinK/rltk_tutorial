@@ -15,6 +15,10 @@ use visibility_system::VisibilitySystem;
 mod monster_ai_system;
 use monster_ai_system::MonsterAI;
 
+use crate::map_indexing_system::MapIndexingSystem;
+
+mod map_indexing_system;
+
 #[derive(PartialEq, Copy, Clone)]
 pub enum RunState {
     Paused,
@@ -32,6 +36,8 @@ impl State {
         vis.run_now(&self.ecs);
         let mut mob = MonsterAI {};
         mob.run_now(&self.ecs);
+        let mut mapindex = MapIndexingSystem {};
+        mapindex.run_now(&self.ecs);
         self.ecs.maintain();
     }
 }
@@ -69,6 +75,7 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<Viewshed>();
     ecs.register::<Monster>();
     ecs.register::<Name>();
+    ecs.register::<BlocksTile>();
 }
 
 fn create_entities(ecs: &mut World) {
@@ -112,6 +119,7 @@ fn create_entities(ecs: &mut World) {
             .with(Name {
                 name: format!("{} #{}", &name, i),
             })
+            .with(BlocksTile {})
             .build();
     }
 

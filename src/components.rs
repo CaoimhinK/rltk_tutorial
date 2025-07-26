@@ -96,3 +96,6 @@ pub struct WantsToUseItem {
 pub struct WantsToDropItem {
     pub item: Entity,
 }
+
+#[derive(Component, Debug)]
+pub struct Consumable {}

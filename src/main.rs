@@ -177,6 +177,7 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<WantsToPickupItem>();
     ecs.register::<WantsToUseItem>();
     ecs.register::<WantsToDropItem>();
+    ecs.register::<Consumable>();
 }
 
 fn create_entities(ecs: &mut World) {

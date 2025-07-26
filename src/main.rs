@@ -178,6 +178,8 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<WantsToUseItem>();
     ecs.register::<WantsToDropItem>();
     ecs.register::<Consumable>();
+    ecs.register::<Ranged>();
+    ecs.register::<InflictsDamage>();
 }
 
 fn create_entities(ecs: &mut World) {

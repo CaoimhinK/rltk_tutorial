@@ -1,8 +1,9 @@
 use specs::prelude::*;
 
 use crate::{
-    gamelog::GameLog, AreaOfEffect, CombatStats, Consumable, InBackpack, InflictsDamage, Map, Name,
-    Position, ProvidesHealing, SufferDamage, WantsToDropItem, WantsToPickupItem, WantsToUseItem,
+    gamelog::GameLog, AreaOfEffect, CombatStats, Confusion, Consumable, InBackpack, InflictsDamage,
+    Map, Name, Position, ProvidesHealing, SufferDamage, WantsToDropItem, WantsToPickupItem,
+    WantsToUseItem,
 };
 
 pub struct ItemCollectionSystem {}
@@ -62,6 +63,7 @@ impl<'a> System<'a> for ItemUseSystem {
         WriteStorage<'a, SufferDamage>,
         ReadExpect<'a, Map>,
         ReadStorage<'a, AreaOfEffect>,
+        WriteStorage<'a, Confusion>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -78,6 +80,7 @@ impl<'a> System<'a> for ItemUseSystem {
             mut suffer_damage,
             map,
             aoe,
+            mut confused,
         ) = data;
 
         for (entity, useitem) in (&entities, &use_item_intents).join() {
@@ -152,6 +155,32 @@ impl<'a> System<'a> for ItemUseSystem {
                         }
                     }
                 }
+            }
+
+            let mut add_confusion = Vec::new();
+            {
+                let causes_confusion = confused.get(useitem.item);
+                match causes_confusion {
+                    None => {}
+                    Some(confusion) => {
+                        for mob in targets.iter() {
+                            add_confusion.push((*mob, confusion.turns));
+                            if entity == *player_entity {
+                                let mob_name = names.get(*mob).unwrap();
+                                let item_name = names.get(useitem.item).unwrap();
+                                gamelog.entries.push(format!(
+                                    "You use {} on {}, confusing them.",
+                                    item_name.name, mob_name.name
+                                ));
+                            }
+                        }
+                    }
+                }
+            }
+            for mob in add_confusion.iter() {
+                confused
+                    .insert(mob.0, Confusion { turns: mob.1 })
+                    .expect("Unable to insert status");
             }
         }
 

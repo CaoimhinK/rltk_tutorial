@@ -214,6 +214,7 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<Ranged>();
     ecs.register::<InflictsDamage>();
     ecs.register::<AreaOfEffect>();
+    ecs.register::<Confusion>();
 }
 
 fn create_entities(ecs: &mut World) {

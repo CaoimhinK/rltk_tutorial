@@ -2,8 +2,8 @@ use rltk::{Point, Rltk, VirtualKeyCode, RGB};
 use specs::prelude::*;
 
 use crate::{
-    gamelog::GameLog, CombatStats, InBackpack, Map, Name, Player, Position, State, Viewshed,
-    MAPWIDTH,
+    gamelog::GameLog, AreaOfEffect, CombatStats, InBackpack, Map, Name, Player, Position, State,
+    Viewshed, MAPWIDTH,
 };
 
 #[derive(PartialEq, Copy, Clone)]
@@ -191,10 +191,15 @@ pub fn ranged_target(
     gs: &mut State,
     ctx: &mut Rltk,
     range: i32,
+    item: Entity,
 ) -> (ItemMenuResult, Option<Point>) {
     let player_entity = gs.ecs.fetch::<Entity>();
     let player_pos = gs.ecs.fetch::<Point>();
+    let map = gs.ecs.fetch::<Map>();
     let viewsheds = gs.ecs.read_storage::<Viewshed>();
+    let aoes = gs.ecs.read_storage::<AreaOfEffect>();
+
+    let has_aoe = aoes.get(item);
 
     ctx.print_color(
         5,
@@ -204,13 +209,39 @@ pub fn ranged_target(
         "Select Target:",
     );
 
+    let mouse_pos = ctx.mouse_pos();
+
+    let blast_tiles;
+    if let Some(aoe) = has_aoe {
+        let mut bt = rltk::field_of_view(
+            Point {
+                x: mouse_pos.0,
+                y: mouse_pos.1,
+            },
+            aoe.radius,
+            &*map,
+        );
+        bt.retain(|p| p.x > 0 && p.x < map.width - 1 && p.y > 0 && p.y < map.height - 1);
+        blast_tiles = Some(bt);
+    } else {
+        blast_tiles = None;
+    }
+
     let mut available_cells = Vec::new();
     let visible = viewsheds.get(*player_entity);
     if let Some(visible) = visible {
         for idx in visible.visible_tiles.iter() {
             let distance = rltk::DistanceAlg::Pythagoras.distance2d(*player_pos, *idx);
             if distance <= range as f32 {
-                ctx.set_bg(idx.x, idx.y, RGB::named(rltk::BLUE));
+                if let Some(bt) = &blast_tiles {
+                    if bt.contains(idx) {
+                        ctx.set_bg(idx.x, idx.y, RGB::named(rltk::LIGHTBLUE));
+                    } else {
+                        ctx.set_bg(idx.x, idx.y, RGB::named(rltk::BLUE));
+                    }
+                } else {
+                    ctx.set_bg(idx.x, idx.y, RGB::named(rltk::BLUE));
+                }
                 available_cells.push(idx);
             }
         }
@@ -218,7 +249,6 @@ pub fn ranged_target(
         return (ItemMenuResult::Cancel, None);
     }
 
-    let mouse_pos = ctx.mouse_pos();
     let mut valid_target = false;
     for idx in available_cells.iter() {
         if idx.x == mouse_pos.0 && idx.y == mouse_pos.1 {

@@ -149,7 +149,7 @@ impl GameState for State {
                 }
             }
             RunState::ShowTargeting { range, item } => {
-                let result = ranged_target(self, ctx, range);
+                let result = ranged_target(self, ctx, range, item);
                 match result.0 {
                     ItemMenuResult::Cancel => newrunstate = RunState::AwaitingInput,
                     ItemMenuResult::NoResponse => {}

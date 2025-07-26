@@ -213,6 +213,7 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<Consumable>();
     ecs.register::<Ranged>();
     ecs.register::<InflictsDamage>();
+    ecs.register::<AreaOfEffect>();
 }
 
 fn create_entities(ecs: &mut World) {

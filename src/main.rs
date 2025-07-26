@@ -18,7 +18,7 @@ use monster_ai_system::MonsterAI;
 use crate::{
     damage_system::DamageSystem,
     gui::ItemMenuResult,
-    inventory_system::{ItemCollectionSystem, ItemDropSystem, PotionUseSystem},
+    inventory_system::{ItemCollectionSystem, ItemDropSystem, ItemUseSystem},
     map_indexing_system::MapIndexingSystem,
     melee_combat_system::MeleeCombatSystem,
 };
@@ -60,8 +60,8 @@ impl State {
         damage.run_now(&self.ecs);
         let mut pickup = ItemCollectionSystem {};
         pickup.run_now(&self.ecs);
-        let mut potions = PotionUseSystem {};
-        potions.run_now(&self.ecs);
+        let mut items = ItemUseSystem {};
+        items.run_now(&self.ecs);
         let mut drop_items = ItemDropSystem {};
         drop_items.run_now(&self.ecs);
         self.ecs.maintain();
@@ -106,13 +106,11 @@ impl GameState for State {
                     ItemMenuResult::NoResponse => {}
                     ItemMenuResult::Selected => {
                         let item_entity = result.1.unwrap();
-                        let mut intent = self.ecs.write_storage::<WantsToDrinkPotion>();
+                        let mut intent = self.ecs.write_storage::<WantsToUseItem>();
                         intent
                             .insert(
                                 *self.ecs.fetch::<Entity>(),
-                                WantsToDrinkPotion {
-                                    potion: item_entity,
-                                },
+                                WantsToUseItem { item: item_entity },
                             )
                             .expect("Unable to insert intent");
                         newrunstate = RunState::PlayerTurn;
@@ -174,10 +172,10 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<WantsToMelee>();
     ecs.register::<SufferDamage>();
     ecs.register::<Item>();
-    ecs.register::<Potion>();
+    ecs.register::<ProvidesHealing>();
     ecs.register::<InBackpack>();
     ecs.register::<WantsToPickupItem>();
-    ecs.register::<WantsToDrinkPotion>();
+    ecs.register::<WantsToUseItem>();
     ecs.register::<WantsToDropItem>();
 }
 

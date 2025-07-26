@@ -1,8 +1,8 @@
 use specs::prelude::*;
 
 use crate::{
-    gamelog::GameLog, CombatStats, Consumable, InBackpack, Name, Position, ProvidesHealing,
-    WantsToDropItem, WantsToPickupItem, WantsToUseItem,
+    gamelog::GameLog, CombatStats, Consumable, InBackpack, InflictsDamage, Map, Name, Position,
+    ProvidesHealing, SufferDamage, WantsToDropItem, WantsToPickupItem, WantsToUseItem,
 };
 
 pub struct ItemCollectionSystem {}
@@ -58,6 +58,9 @@ impl<'a> System<'a> for ItemUseSystem {
         ReadStorage<'a, ProvidesHealing>,
         WriteStorage<'a, CombatStats>,
         ReadStorage<'a, Consumable>,
+        ReadStorage<'a, InflictsDamage>,
+        WriteStorage<'a, SufferDamage>,
+        ReadExpect<'a, Map>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -70,6 +73,9 @@ impl<'a> System<'a> for ItemUseSystem {
             healing,
             mut combat_stats,
             consumables,
+            inflict_damage,
+            mut suffer_damage,
+            map,
         ) = data;
 
         for (entity, useitem, stats) in (&entities, &use_item_intents, &mut combat_stats).join() {
@@ -92,6 +98,26 @@ impl<'a> System<'a> for ItemUseSystem {
             match consumable {
                 None => {}
                 Some(_) => entities.delete(useitem.item).expect("Delete failed"),
+            }
+
+            let item_damages = inflict_damage.get(useitem.item);
+            match item_damages {
+                None => {}
+                Some(damage) => {
+                    let target_point = useitem.target.unwrap();
+                    let idx = map.xy_idx(target_point.x, target_point.y);
+                    for mob in map.tile_content[idx].iter() {
+                        SufferDamage::new_damage(&mut suffer_damage, *mob, damage.damage);
+                        if entity == *player_entity {
+                            let mob_name = names.get(*mob).unwrap();
+                            let item_name = names.get(useitem.item).unwrap();
+                            gamelog.entries.push(format!(
+                                "You use {} on {}, inflicting {} hp.",
+                                item_name.name, mob_name.name, damage.damage
+                            ))
+                        }
+                    }
+                }
             }
         }
 

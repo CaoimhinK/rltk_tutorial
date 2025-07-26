@@ -1,3 +1,5 @@
+extern crate serde;
+
 use rltk::{GameState, Point};
 use specs::prelude::*;
 
@@ -42,6 +44,7 @@ pub enum RunState {
     ShowDropItem,
     ShowTargeting { range: i32, item: Entity },
     MainMenu { menu_selection: MainMenuSelection },
+    SaveGame,
 }
 
 pub struct State {
@@ -122,6 +125,14 @@ impl GameState for State {
 
         match newrunstate {
             RunState::MainMenu { .. } => {}
+            RunState::SaveGame => {
+                let data = serde_json::to_string(&*self.ecs.fetch::<Map>()).unwrap();
+                println!("{}", data);
+
+                newrunstate = RunState::MainMenu {
+                    menu_selection: MainMenuSelection::LoadGame,
+                }
+            }
             RunState::PreRun => {
                 self.run_systems();
                 self.ecs.maintain();

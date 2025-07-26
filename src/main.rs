@@ -2,6 +2,7 @@ extern crate serde;
 
 use rltk::{GameState, Point};
 use specs::prelude::*;
+use specs::saveload::{SimpleMarker, SimpleMarkerAllocator};
 
 mod components;
 pub use components::*;
@@ -251,9 +252,11 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<InflictsDamage>();
     ecs.register::<AreaOfEffect>();
     ecs.register::<Confusion>();
+    ecs.register::<SimpleMarker<SerializeMe>>();
 }
 
 fn create_entities(ecs: &mut World) {
+    ecs.insert(SimpleMarkerAllocator::<SerializeMe>::new());
     ecs.insert(RunState::MainMenu {
         menu_selection: MainMenuSelection::NewGame,
     });

@@ -99,6 +99,7 @@ impl GameState for State {
                         MainMenuSelection::LoadGame => {
                             saveload_system::load_game(&mut self.ecs);
                             newrunstate = RunState::AwaitingInput;
+                            saveload_system::delete_save();
                         }
                         MainMenuSelection::Quit => {
                             ::std::process::exit(0);

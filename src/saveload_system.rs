@@ -168,3 +168,9 @@ pub fn load_game(ecs: &mut World) {
 pub fn does_save_exist() -> bool {
     Path::new("./savegame.json").exists()
 }
+
+pub fn delete_save() {
+    if Path::new("./savegame.json").exists() {
+        fs::remove_file("./savegame.json").expect("Unable to delete file");
+    }
+}

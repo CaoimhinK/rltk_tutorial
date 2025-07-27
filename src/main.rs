@@ -34,6 +34,7 @@ mod damage_system;
 mod inventory_system;
 mod map_indexing_system;
 mod melee_combat_system;
+mod saveload_system;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum RunState {
@@ -95,7 +96,10 @@ impl GameState for State {
                     }
                     MainMenuResult::Selected { selected } => match selected {
                         MainMenuSelection::NewGame => newrunstate = RunState::PreRun,
-                        MainMenuSelection::LoadGame => newrunstate = RunState::PreRun,
+                        MainMenuSelection::LoadGame => {
+                            saveload_system::load_game(&mut self.ecs);
+                            newrunstate = RunState::AwaitingInput;
+                        }
                         MainMenuSelection::Quit => {
                             ::std::process::exit(0);
                         }
@@ -127,8 +131,7 @@ impl GameState for State {
         match newrunstate {
             RunState::MainMenu { .. } => {}
             RunState::SaveGame => {
-                let data = serde_json::to_string(&*self.ecs.fetch::<Map>()).unwrap();
-                println!("{}", data);
+                saveload_system::save_game(&mut self.ecs);
 
                 newrunstate = RunState::MainMenu {
                     menu_selection: MainMenuSelection::LoadGame,
@@ -253,6 +256,7 @@ fn register_structs(ecs: &mut World) {
     ecs.register::<AreaOfEffect>();
     ecs.register::<Confusion>();
     ecs.register::<SimpleMarker<SerializeMe>>();
+    ecs.register::<SerializationHelper>();
 }
 
 fn create_entities(ecs: &mut World) {

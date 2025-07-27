@@ -7,6 +7,8 @@ use specs::{
 };
 use specs_derive::{Component, ConvertSaveload};
 
+use crate::Map;
+
 #[derive(Component, ConvertSaveload, Clone)]
 pub struct Position {
     pub x: i32,
@@ -21,7 +23,7 @@ pub struct Renderable {
     pub render_order: i32,
 }
 
-#[derive(Component, Serialize, Deserialize, Debug)]
+#[derive(Component, Serialize, Deserialize, Debug, Clone)]
 pub struct Player {}
 
 #[derive(Component, ConvertSaveload, Clone)]
@@ -31,10 +33,10 @@ pub struct Viewshed {
     pub dirty: bool,
 }
 
-#[derive(Component, Serialize, Deserialize, Debug)]
+#[derive(Component, Serialize, Deserialize, Debug, Clone)]
 pub struct Monster {}
 
-#[derive(Component, ConvertSaveload, Debug)]
+#[derive(Component, ConvertSaveload, Debug, Clone)]
 pub struct Name {
     pub name: String,
 }
@@ -42,7 +44,7 @@ pub struct Name {
 #[derive(Component, Serialize, Deserialize, Clone)]
 pub struct BlocksTile {}
 
-#[derive(Component, ConvertSaveload, Debug)]
+#[derive(Component, ConvertSaveload, Debug, Clone)]
 pub struct CombatStats {
     pub max_hp: i32,
     pub hp: i32,
@@ -50,12 +52,12 @@ pub struct CombatStats {
     pub power: i32,
 }
 
-#[derive(Component, ConvertSaveload, Debug)]
+#[derive(Component, ConvertSaveload, Debug, Clone)]
 pub struct WantsToMelee {
     pub target: Entity,
 }
 
-#[derive(Component, ConvertSaveload, Debug)]
+#[derive(Component, ConvertSaveload, Debug, Clone)]
 pub struct SufferDamage {
     pub amount: Vec<i32>,
 }
@@ -73,10 +75,10 @@ impl SufferDamage {
     }
 }
 
-#[derive(Component, Serialize, Deserialize, Debug)]
+#[derive(Component, Serialize, Deserialize, Debug, Clone)]
 pub struct Item {}
 
-#[derive(Component, ConvertSaveload, Debug)]
+#[derive(Component, ConvertSaveload, Debug, Clone)]
 pub struct ProvidesHealing {
     pub heal_amount: i32,
 }
@@ -92,7 +94,7 @@ pub struct WantsToPickupItem {
     pub item: Entity,
 }
 
-#[derive(Component, ConvertSaveload, Debug)]
+#[derive(Component, ConvertSaveload, Debug, Clone)]
 pub struct WantsToUseItem {
     pub item: Entity,
     pub target: Option<Point>,
@@ -103,27 +105,32 @@ pub struct WantsToDropItem {
     pub item: Entity,
 }
 
-#[derive(Component, Serialize, Deserialize, Debug)]
+#[derive(Component, Serialize, Deserialize, Debug, Clone)]
 pub struct Consumable {}
 
-#[derive(Component, ConvertSaveload, Debug)]
+#[derive(Component, ConvertSaveload, Debug, Clone)]
 pub struct Ranged {
     pub range: i32,
 }
 
-#[derive(Component, ConvertSaveload, Debug)]
+#[derive(Component, ConvertSaveload, Debug, Clone)]
 pub struct InflictsDamage {
     pub damage: i32,
 }
 
-#[derive(Component, ConvertSaveload, Debug)]
+#[derive(Component, ConvertSaveload, Debug, Clone)]
 pub struct AreaOfEffect {
     pub radius: i32,
 }
 
-#[derive(Component, ConvertSaveload, Debug)]
+#[derive(Component, ConvertSaveload, Debug, Clone)]
 pub struct Confusion {
     pub turns: i32,
 }
 
 pub struct SerializeMe;
+
+#[derive(Component, ConvertSaveload, Clone)]
+pub struct SerializationHelper {
+    pub map: Map,
+}
